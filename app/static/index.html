@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Churn Prediction</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Customer Churn Prediction</h1>
+
+        <p class="subtitle">
+            Enter customer information to predict churn probability.
+        </p>
+
+        <form id="churnForm">
+
+            <!-- Customer Information -->
+
+            <h2>Customer Information</h2>
+
+            <div class="grid">
+
+                <div>
+                    <label>Gender</label>
+
+                    <select id="gender">
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Senior Citizen</label>
+
+                    <select id="SeniorCitizen">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Partner</label>
+
+                    <select id="Partner">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Dependents</label>
+
+                    <select id="Dependents">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Tenure (months)</label>
+
+                    <input
+                        type="number"
+                        id="tenure"
+                        value="5"
+                        min="0"
+                    >
+                </div>
+
+            </div>
+
+
+            <!-- Services -->
+
+            <h2>Services</h2>
+
+            <div class="grid">
+
+                <div>
+                    <label>Phone Service</label>
+
+                    <select id="PhoneService">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Multiple Lines</label>
+
+                    <select id="MultipleLines">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No phone service">
+                            No phone service
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Internet Service</label>
+
+                    <select id="InternetService">
+                        <option value="DSL">DSL</option>
+                        <option value="Fiber optic">Fiber optic</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Online Security</label>
+
+                    <select id="OnlineSecurity">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No internet service">
+                            No internet service
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Online Backup</label>
+
+                    <select id="OnlineBackup">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No internet service">
+                            No internet service
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Device Protection</label>
+
+                    <select id="DeviceProtection">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No internet service">
+                            No internet service
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Tech Support</label>
+
+                    <select id="TechSupport">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No internet service">
+                            No internet service
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Streaming TV</label>
+
+                    <select id="StreamingTV">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No internet service">
+                            No internet service
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Streaming Movies</label>
+
+                    <select id="StreamingMovies">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No internet service">
+                            No internet service
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+
+            <!-- Contract and Billing -->
+
+            <h2>Contract & Billing</h2>
+
+            <div class="grid">
+
+                <div>
+                    <label>Contract</label>
+
+                    <select id="Contract">
+                        <option value="Month-to-month">
+                            Month-to-month
+                        </option>
+
+                        <option value="One year">
+                            One year
+                        </option>
+
+                        <option value="Two year">
+                            Two year
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Paperless Billing</label>
+
+                    <select id="PaperlessBilling">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Payment Method</label>
+
+                    <select id="PaymentMethod">
+
+                        <option value="Electronic check">
+                            Electronic check
+                        </option>
+
+                        <option value="Mailed check">
+                            Mailed check
+                        </option>
+
+                        <option value="Bank transfer (automatic)">
+                            Bank transfer (automatic)
+                        </option>
+
+                        <option value="Credit card (automatic)">
+                            Credit card (automatic)
+                        </option>
+
+                    </select>
+                </div>
+
+                <div>
+                    <label>Monthly Charges</label>
+
+                    <input
+                        type="number"
+                        id="MonthlyCharges"
+                        value="70.35"
+                        step="0.01"
+                        min="0"
+                    >
+                </div>
+
+                <div>
+                    <label>Total Charges</label>
+
+                    <input
+                        type="number"
+                        id="TotalCharges"
+                        value="351.75"
+                        step="0.01"
+                        min="0"
+                    >
+                </div>
+
+            </div>
+
+
+            <button type="submit">
+                Predict Churn
+            </button>
+
+        </form>
+
+
+        <!-- Result -->
+
+        <div id="result" class="result hidden">
+
+            <h2>Prediction Result</h2>
+
+            <p>
+                <strong>Prediction:</strong>
+                <span id="prediction"></span>
+            </p>
+
+            <p>
+                <strong>Churn Probability:</strong>
+                <span id="probability"></span>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <script src="/static/script.js"></script>
+
+</body>
+
+</html>
