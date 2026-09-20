@@ -8,8 +8,7 @@ import pandas as pd
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
-
+from pydantic import BaseModel, Field
 
 # --------------------------------------------------
 # Logging
@@ -79,23 +78,25 @@ logger.info("Machine learning model loaded successfully")
 # Input data model
 # --------------------------------------------------
 
+
+
 class CustomerData(BaseModel):
 
     gender: str
-    SeniorCitizen: int
+    SeniorCitizen: int = Field(ge=0, le=1)
+
     Partner: str
     Dependents: str
-    tenure: int
+
+    tenure: int = Field(ge=0)
 
     PhoneService: str
     MultipleLines: str
     InternetService: str
-
     OnlineSecurity: str
     OnlineBackup: str
     DeviceProtection: str
     TechSupport: str
-
     StreamingTV: str
     StreamingMovies: str
 
@@ -103,9 +104,8 @@ class CustomerData(BaseModel):
     PaperlessBilling: str
     PaymentMethod: str
 
-    MonthlyCharges: float
-    TotalCharges: float
-
+    MonthlyCharges: float = Field(ge=0)
+    TotalCharges: float = Field(ge=0)
 
 # --------------------------------------------------
 # Home endpoint

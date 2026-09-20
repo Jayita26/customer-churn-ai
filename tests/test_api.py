@@ -87,3 +87,97 @@ def test_prediction():
     assert 0 <= data["churn_probability"] <= 1
 
     assert 0 <= data["churn_probability_percent"] <= 100
+
+def test_negative_tenure_rejected():
+
+    customer = {
+        "gender": "Female",
+        "SeniorCitizen": 0,
+        "Partner": "Yes",
+        "Dependents": "No",
+        "tenure": -5,
+        "PhoneService": "Yes",
+        "MultipleLines": "No",
+        "InternetService": "DSL",
+        "OnlineSecurity": "No",
+        "OnlineBackup": "Yes",
+        "DeviceProtection": "No",
+        "TechSupport": "No",
+        "StreamingTV": "No",
+        "StreamingMovies": "No",
+        "Contract": "Month-to-month",
+        "PaperlessBilling": "Yes",
+        "PaymentMethod": "Electronic check",
+        "MonthlyCharges": 70.35,
+        "TotalCharges": 351.75
+    }
+
+    response = client.post(
+        "/predict",
+        json=customer
+    )
+
+    assert response.status_code == 422
+
+
+def test_negative_monthly_charges_rejected():
+
+    customer = {
+        "gender": "Female",
+        "SeniorCitizen": 0,
+        "Partner": "Yes",
+        "Dependents": "No",
+        "tenure": 5,
+        "PhoneService": "Yes",
+        "MultipleLines": "No",
+        "InternetService": "DSL",
+        "OnlineSecurity": "No",
+        "OnlineBackup": "Yes",
+        "DeviceProtection": "No",
+        "TechSupport": "No",
+        "StreamingTV": "No",
+        "StreamingMovies": "No",
+        "Contract": "Month-to-month",
+        "PaperlessBilling": "Yes",
+        "PaymentMethod": "Electronic check",
+        "MonthlyCharges": -70.35,
+        "TotalCharges": 351.75
+    }
+
+    response = client.post(
+        "/predict",
+        json=customer
+    )
+
+    assert response.status_code == 422
+
+def test_invalid_senior_citizen_rejected():
+
+    customer = {
+        "gender": "Female",
+        "SeniorCitizen": 2,
+        "Partner": "Yes",
+        "Dependents": "No",
+        "tenure": 5,
+        "PhoneService": "Yes",
+        "MultipleLines": "No",
+        "InternetService": "DSL",
+        "OnlineSecurity": "No",
+        "OnlineBackup": "Yes",
+        "DeviceProtection": "No",
+        "TechSupport": "No",
+        "StreamingTV": "No",
+        "StreamingMovies": "No",
+        "Contract": "Month-to-month",
+        "PaperlessBilling": "Yes",
+        "PaymentMethod": "Electronic check",
+        "MonthlyCharges": 70.35,
+        "TotalCharges": 351.75
+    }
+
+    response = client.post(
+        "/predict",
+        json=customer
+    )
+
+    assert response.status_code == 422
