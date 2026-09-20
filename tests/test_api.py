@@ -262,3 +262,31 @@ def test_risk_level_present_in_prediction():
 
     assert "risk_level" in data
     assert data["risk_level"] in ["Low", "Medium", "High"]
+
+def test_feature_importance():
+
+    response = client.get("/feature-importance")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "features" in data
+
+    assert len(data["features"]) == 10
+
+    for feature in data["features"]:
+
+        assert "feature" in feature
+        assert "coefficient" in feature
+        assert "absolute_importance" in feature
+
+        assert isinstance(
+            feature["coefficient"],
+            float
+        )
+
+        assert isinstance(
+            feature["absolute_importance"],
+            float
+        )

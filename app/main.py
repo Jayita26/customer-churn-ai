@@ -71,7 +71,28 @@ MODEL_PATH = os.path.join(
 
 model = joblib.load(MODEL_PATH)
 
-logger.info("Machine learning model loaded successfully")
+def get_feature_importance():
+
+    preprocessor = model.named_steps["preprocessor"]
+
+    classifier = model.named_steps["model"]
+
+    feature_names = preprocessor.get_feature_names_out()
+
+    coefficients = classifier.coef_[0]
+
+    importance = pd.DataFrame({
+        "feature": feature_names,
+        "coefficient": coefficients,
+        "absolute_importance": abs(coefficients)
+    })
+
+    importance = importance.sort_values(
+        by="absolute_importance",
+        ascending=False
+    )
+
+    return importance
 
 
 # --------------------------------------------------
@@ -142,12 +163,29 @@ def health_check():
 
 @app.get("/model-info")
 def model_info():
+    
 
     return {
         "model": "Logistic Regression",
         "task": "Customer Churn Prediction",
         "target": "Churn",
         "output": "Churn probability"
+    }
+
+
+@app.get("/feature-importance")
+def feature_importance():
+
+    logger.info("Feature importance requested")
+
+    importance = get_feature_importance()
+
+    top_features = importance.head(10)
+
+    return {
+        "features": top_features[
+            ["feature", "coefficient", "absolute_importance"]
+        ].to_dict(orient="records")
     }
 
 
