@@ -165,21 +165,30 @@ def predict_churn(customer: CustomerData):
     customer_df = pd.DataFrame([customer_dict])
 
     customer_df = clean_data(customer_df)
-
     customer_df = create_features(customer_df)
 
     prediction = model.predict(customer_df)[0]
 
     probability = model.predict_proba(customer_df)[0][1]
 
+    probability_percent = float(probability) * 100
+
     if prediction == 1:
         result = "Likely to Churn"
     else:
         result = "Likely to Stay"
 
+    if probability_percent < 30:
+        risk_level = "Low"
+    elif probability_percent <= 70:
+        risk_level = "Medium"
+    else:
+        risk_level = "High"
+
     logger.info(
         f"Prediction completed: {result}, "
-        f"probability={probability:.4f}"
+        f"probability={probability:.4f}, "
+        f"risk={risk_level}"
     )
 
     return {
@@ -189,7 +198,8 @@ def predict_churn(customer: CustomerData):
             4
         ),
         "churn_probability_percent": round(
-            float(probability) * 100,
+            probability_percent,
             2
-        )
+        ),
+        "risk_level": risk_level
     }

@@ -20,6 +20,7 @@
             Enter customer information to predict churn probability.
         </p>
 
+
         <form id="churnForm">
 
             <!-- Customer Information -->
@@ -37,6 +38,7 @@
                     </select>
                 </div>
 
+
                 <div>
                     <label>Senior Citizen</label>
 
@@ -45,6 +47,7 @@
                         <option value="1">Yes</option>
                     </select>
                 </div>
+
 
                 <div>
                     <label>Partner</label>
@@ -55,6 +58,7 @@
                     </select>
                 </div>
 
+
                 <div>
                     <label>Dependents</label>
 
@@ -63,6 +67,7 @@
                         <option value="No">No</option>
                     </select>
                 </div>
+
 
                 <div>
                     <label>Tenure (months)</label>
@@ -93,6 +98,7 @@
                     </select>
                 </div>
 
+
                 <div>
                     <label>Multiple Lines</label>
 
@@ -105,6 +111,7 @@
                     </select>
                 </div>
 
+
                 <div>
                     <label>Internet Service</label>
 
@@ -114,6 +121,7 @@
                         <option value="No">No</option>
                     </select>
                 </div>
+
 
                 <div>
                     <label>Online Security</label>
@@ -127,6 +135,7 @@
                     </select>
                 </div>
 
+
                 <div>
                     <label>Online Backup</label>
 
@@ -138,6 +147,7 @@
                         </option>
                     </select>
                 </div>
+
 
                 <div>
                     <label>Device Protection</label>
@@ -151,6 +161,7 @@
                     </select>
                 </div>
 
+
                 <div>
                     <label>Tech Support</label>
 
@@ -163,6 +174,7 @@
                     </select>
                 </div>
 
+
                 <div>
                     <label>Streaming TV</label>
 
@@ -174,6 +186,7 @@
                         </option>
                     </select>
                 </div>
+
 
                 <div>
                     <label>Streaming Movies</label>
@@ -200,6 +213,7 @@
                     <label>Contract</label>
 
                     <select id="Contract">
+
                         <option value="Month-to-month">
                             Month-to-month
                         </option>
@@ -211,8 +225,10 @@
                         <option value="Two year">
                             Two year
                         </option>
+
                     </select>
                 </div>
+
 
                 <div>
                     <label>Paperless Billing</label>
@@ -222,6 +238,7 @@
                         <option value="No">No</option>
                     </select>
                 </div>
+
 
                 <div>
                     <label>Payment Method</label>
@@ -247,6 +264,7 @@
                     </select>
                 </div>
 
+
                 <div>
                     <label>Monthly Charges</label>
 
@@ -258,6 +276,7 @@
                         min="0"
                     >
                 </div>
+
 
                 <div>
                     <label>Total Charges</label>
@@ -273,6 +292,8 @@
 
             </div>
 
+
+            <!-- Predict Button -->
 
             <button type="submit">
                 Predict Churn
@@ -295,6 +316,11 @@
             <p>
                 <strong>Churn Probability:</strong>
                 <span id="probability"></span>
+            </p>
+
+            <p>
+                <strong>Risk Level:</strong>
+                <span id="risk"></span>
             </p>
 
         </div>

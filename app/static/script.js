@@ -1,75 +1,54 @@
-const form = document.getElementById("churnForm");
-
-form.addEventListener("submit", async function(event) {
+document.getElementById("churnForm").addEventListener("submit", async function (event) {
 
     event.preventDefault();
 
     const customerData = {
 
-        gender:
-            document.getElementById("gender").value,
+        gender: document.getElementById("gender").value,
 
-        SeniorCitizen:
-            parseInt(
-                document.getElementById("SeniorCitizen").value
-            ),
+        SeniorCitizen: parseInt(
+            document.getElementById("SeniorCitizen").value
+        ),
 
-        Partner:
-            document.getElementById("Partner").value,
+        Partner: document.getElementById("Partner").value,
 
-        Dependents:
-            document.getElementById("Dependents").value,
+        Dependents: document.getElementById("Dependents").value,
 
-        tenure:
-            parseInt(
-                document.getElementById("tenure").value
-            ),
+        tenure: parseInt(
+            document.getElementById("tenure").value
+        ),
 
-        PhoneService:
-            document.getElementById("PhoneService").value,
+        PhoneService: document.getElementById("PhoneService").value,
 
-        MultipleLines:
-            document.getElementById("MultipleLines").value,
+        MultipleLines: document.getElementById("MultipleLines").value,
 
-        InternetService:
-            document.getElementById("InternetService").value,
+        InternetService: document.getElementById("InternetService").value,
 
-        OnlineSecurity:
-            document.getElementById("OnlineSecurity").value,
+        OnlineSecurity: document.getElementById("OnlineSecurity").value,
 
-        OnlineBackup:
-            document.getElementById("OnlineBackup").value,
+        OnlineBackup: document.getElementById("OnlineBackup").value,
 
-        DeviceProtection:
-            document.getElementById("DeviceProtection").value,
+        DeviceProtection: document.getElementById("DeviceProtection").value,
 
-        TechSupport:
-            document.getElementById("TechSupport").value,
+        TechSupport: document.getElementById("TechSupport").value,
 
-        StreamingTV:
-            document.getElementById("StreamingTV").value,
+        StreamingTV: document.getElementById("StreamingTV").value,
 
-        StreamingMovies:
-            document.getElementById("StreamingMovies").value,
+        StreamingMovies: document.getElementById("StreamingMovies").value,
 
-        Contract:
-            document.getElementById("Contract").value,
+        Contract: document.getElementById("Contract").value,
 
-        PaperlessBilling:
-            document.getElementById("PaperlessBilling").value,
+        PaperlessBilling: document.getElementById("PaperlessBilling").value,
 
-        PaymentMethod:
-            document.getElementById("PaymentMethod").value,
+        PaymentMethod: document.getElementById("PaymentMethod").value,
 
-        MonthlyCharges:
-            parseFloat(
-                document.getElementById("MonthlyCharges").value
-            ),
+        MonthlyCharges: parseFloat(
+            document.getElementById("MonthlyCharges").value
+        ),
 
-        TotalCharges:
-            parseFloat(
-                document.getElementById("TotalCharges").value
-            )
+        TotalCharges: parseFloat(
+            document.getElementById("TotalCharges").value
+        )
     };
 
 
@@ -88,39 +67,50 @@ form.addEventListener("submit", async function(event) {
         });
 
 
+        const data = await response.json();
+
+
         if (!response.ok) {
 
-            throw new Error(
-                "Prediction request failed"
+            alert(
+                data.detail ||
+                "Prediction failed. Please check your input."
             );
 
+            return;
         }
 
 
-        const result = await response.json();
-
+        // Display prediction
 
         document.getElementById("prediction").textContent =
-            result.prediction;
+            data.prediction;
 
+
+        // Display churn probability
 
         document.getElementById("probability").textContent =
-            result.churn_probability_percent + "%";
+            data.churn_probability_percent + "%";
 
 
-        document
-            .getElementById("result")
-            .classList
-            .remove("hidden");
+        // Display risk level
+
+        document.getElementById("risk").textContent =
+            data.risk_level;
+
+
+        // Show result section
+
+        document.getElementById("result").classList.remove("hidden");
 
 
     } catch (error) {
 
-        alert(
-            "Error connecting to the prediction API."
-        );
+        console.error("Error:", error);
 
-        console.error(error);
+        alert(
+            "Unable to connect to the prediction API."
+        );
 
     }
 
