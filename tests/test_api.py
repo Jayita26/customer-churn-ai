@@ -335,3 +335,10 @@ def test_prediction_error_handling(monkeypatch):
     assert data["detail"] == (
         "Prediction failed due to an internal server error."
     )
+
+def test_request_id_header():
+    response = client.get("/api/v1/health")
+
+    assert response.status_code == 200
+    assert "X-Request-ID" in response.headers
+    assert len(response.headers["X-Request-ID"]) == 8

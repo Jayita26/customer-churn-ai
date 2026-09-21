@@ -1,6 +1,8 @@
 import sys
 import os
 import logging
+import time
+import uuid
 
 import joblib
 import pandas as pd
@@ -44,6 +46,35 @@ app = FastAPI(
     description="Machine Learning API for Customer Churn Prediction",
     version="1.1.0"
 )
+
+@app.middleware("http")
+async def request_logging_middleware(request, call_next):
+
+    request_id = str(uuid.uuid4())[:8]
+
+    start_time = time.time()
+
+    logger.info(
+        f"Request started | "
+        f"id={request_id} | "
+        f"method={request.method} | "
+        f"path={request.url.path}"
+    )
+
+    response = await call_next(request)
+
+    duration = time.time() - start_time
+
+    logger.info(
+        f"Request completed | "
+        f"id={request_id} | "
+        f"status={response.status_code} | "
+        f"time={duration:.4f}s"
+    )
+
+    response.headers["X-Request-ID"] = request_id
+
+    return response
 
 api_v1 = APIRouter(
     prefix="/api/v1"
