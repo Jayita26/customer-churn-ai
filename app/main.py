@@ -12,8 +12,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
+
 # --------------------------------------------------
-# Logging
+# Logging Configuration
 # --------------------------------------------------
 
 logging.basicConfig(
@@ -25,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 # --------------------------------------------------
-# Import preprocessing functions
+# Project Path
 # --------------------------------------------------
 
 sys.path.append(
@@ -34,18 +35,47 @@ sys.path.append(
     )
 )
 
-from src.preprocessing import clean_data, create_features
+
+# --------------------------------------------------
+# Import Preprocessing Functions
+# --------------------------------------------------
+
+from src.preprocessing import (
+    clean_data,
+    create_features
+)
 
 
 # --------------------------------------------------
-# FastAPI application
+# FastAPI Application
 # --------------------------------------------------
 
 app = FastAPI(
     title="Customer Churn Prediction API",
-    description="Machine Learning API for Customer Churn Prediction",
-    version="1.1.0"
+    description="""
+    Production-style Machine Learning API for predicting customer churn.
+
+    The API accepts customer information and returns:
+    - Churn prediction
+    - Churn probability
+    - Risk level
+
+    The API also provides model information, feature importance,
+    health monitoring, request tracking, and response-time logging.
+    """,
+    version="1.2.0",
+    contact={
+        "name": "Jayita Maiti"
+    },
+    license_info={
+        "name": "MIT"
+    }
 )
+
+
+# --------------------------------------------------
+# Request Monitoring Middleware
+# --------------------------------------------------
 
 @app.middleware("http")
 async def request_logging_middleware(request, call_next):
@@ -76,10 +106,19 @@ async def request_logging_middleware(request, call_next):
 
     return response
 
+
+# --------------------------------------------------
+# API Router
+# --------------------------------------------------
+
 api_v1 = APIRouter(
     prefix="/api/v1"
 )
 
+
+# --------------------------------------------------
+# Static Frontend
+# --------------------------------------------------
 
 STATIC_DIR = os.path.join(
     os.path.dirname(__file__),
@@ -94,7 +133,7 @@ app.mount(
 
 
 # --------------------------------------------------
-# Load ML model
+# Model Path
 # --------------------------------------------------
 
 MODEL_PATH = os.path.join(
@@ -104,7 +143,17 @@ MODEL_PATH = os.path.join(
     "logistic_churn_model.pkl"
 )
 
+
+# --------------------------------------------------
+# Load Machine Learning Model
+# --------------------------------------------------
+
 model = joblib.load(MODEL_PATH)
+
+
+# --------------------------------------------------
+# Feature Importance Function
+# --------------------------------------------------
 
 def get_feature_importance():
 
@@ -131,20 +180,24 @@ def get_feature_importance():
 
 
 # --------------------------------------------------
-# Input data model
+# Request Models
 # --------------------------------------------------
-
-
 
 class CustomerData(BaseModel):
 
     gender: str
-    SeniorCitizen: int = Field(ge=0, le=1)
+
+    SeniorCitizen: int = Field(
+        ge=0,
+        le=1
+    )
 
     Partner: str
     Dependents: str
 
-    tenure: int = Field(ge=0)
+    tenure: int = Field(
+        ge=0
+    )
 
     PhoneService: str
     MultipleLines: str
@@ -160,32 +213,54 @@ class CustomerData(BaseModel):
     PaperlessBilling: str
     PaymentMethod: str
 
-    MonthlyCharges: float = Field(ge=0)
-    TotalCharges: float = Field(ge=0)
+    MonthlyCharges: float = Field(
+        ge=0
+    )
+
+    TotalCharges: float = Field(
+        ge=0
+    )
+
+
+# --------------------------------------------------
+# Response Models
+# --------------------------------------------------
 
 class PredictionResponse(BaseModel):
 
     prediction: str
+
     churn_probability: float
+
     churn_probability_percent: float
+
     risk_level: str
+
 
 class HealthResponse(BaseModel):
 
     status: str
+
     model_loaded: bool
+
 
 class ModelInfoResponse(BaseModel):
 
     model: str
+
     task: str
+
     target: str
+
     output: str
+
 
 class FeatureImportanceItem(BaseModel):
 
     feature: str
+
     coefficient: float
+
     absolute_importance: float
 
 
@@ -193,34 +268,52 @@ class FeatureImportanceResponse(BaseModel):
 
     features: list[FeatureImportanceItem]
 
+
 # --------------------------------------------------
-# Home endpoint
+# Frontend
 # --------------------------------------------------
 
-@app.get("/", include_in_schema=False)
+@app.get(
+    "/",
+    include_in_schema=False
+)
 def home():
 
-    logger.info("Frontend accessed")
+    logger.info(
+        "Frontend accessed"
+    )
 
     return FileResponse(
-        os.path.join(STATIC_DIR, "index.html")
+        os.path.join(
+            STATIC_DIR,
+            "index.html"
+        )
     )
 
 
-# --------------------------------------------------
-# Health check
-# --------------------------------------------------
+# ==================================================
+# HEALTH ENDPOINT
+# ==================================================
+
 @api_v1.get(
     "/health",
-    response_model=HealthResponse
+    response_model=HealthResponse,
+    tags=["Monitoring"],
+    summary="Check API health",
+    description="Check whether the API is running and the machine learning model is loaded."
 )
 @app.get(
     "/health",
-    response_model=HealthResponse
+    response_model=HealthResponse,
+    tags=["Monitoring"],
+    summary="Check API health",
+    description="Check whether the API is running and the machine learning model is loaded."
 )
 def health_check():
 
-    logger.info("Health check requested")
+    logger.info(
+        "Health check requested"
+    )
 
     return {
         "status": "healthy",
@@ -228,20 +321,25 @@ def health_check():
     }
 
 
-# --------------------------------------------------
-# Model information
-# --------------------------------------------------
+# ==================================================
+# MODEL INFORMATION ENDPOINT
+# ==================================================
 
 @api_v1.get(
     "/model-info",
-    response_model=ModelInfoResponse
+    response_model=ModelInfoResponse,
+    tags=["Model"],
+    summary="Get model information",
+    description="Return information about the machine learning model used by the API."
 )
 @app.get(
     "/model-info",
-    response_model=ModelInfoResponse
+    response_model=ModelInfoResponse,
+    tags=["Model"],
+    summary="Get model information",
+    description="Return information about the machine learning model used by the API."
 )
 def model_info():
-    
 
     return {
         "model": "Logistic Regression",
@@ -251,17 +349,29 @@ def model_info():
     }
 
 
+# ==================================================
+# FEATURE IMPORTANCE ENDPOINT
+# ==================================================
+
 @api_v1.get(
     "/feature-importance",
-    response_model=FeatureImportanceResponse
+    response_model=FeatureImportanceResponse,
+    tags=["Model"],
+    summary="Get feature importance",
+    description="Return the top features contributing to the Logistic Regression model prediction."
 )
 @app.get(
     "/feature-importance",
-    response_model=FeatureImportanceResponse
+    response_model=FeatureImportanceResponse,
+    tags=["Model"],
+    summary="Get feature importance",
+    description="Return the top features contributing to the Logistic Regression model prediction."
 )
 def feature_importance():
 
-    logger.info("Feature importance requested")
+    logger.info(
+        "Feature importance requested"
+    )
 
     importance = get_feature_importance()
 
@@ -269,70 +379,140 @@ def feature_importance():
 
     return {
         "features": top_features[
-            ["feature", "coefficient", "absolute_importance"]
-        ].to_dict(orient="records")
+            [
+                "feature",
+                "coefficient",
+                "absolute_importance"
+            ]
+        ].to_dict(
+            orient="records"
+        )
     }
 
 
-# --------------------------------------------------
-# Prediction endpoint
-# --------------------------------------------------
+# ==================================================
+# PREDICTION ENDPOINT
+# ==================================================
 
 @api_v1.post(
     "/predict",
-    response_model=PredictionResponse
+    response_model=PredictionResponse,
+    tags=["Prediction"],
+    summary="Predict customer churn",
+    description="""
+    Predict whether a customer is likely to churn.
+
+    The endpoint returns:
+    - Churn prediction
+    - Churn probability
+    - Risk level
+
+    Risk levels are based on the project's configured
+    probability thresholds.
+    """
 )
 @app.post(
     "/predict",
-    response_model=PredictionResponse
+    response_model=PredictionResponse,
+    tags=["Prediction"],
+    summary="Predict customer churn",
+    description="""
+    Predict whether a customer is likely to churn.
+
+    The endpoint returns:
+    - Churn prediction
+    - Churn probability
+    - Risk level
+
+    Risk levels are based on the project's configured
+    probability thresholds.
+    """
 )
-def predict_churn(customer: CustomerData):
+def predict_churn(
+    customer: CustomerData
+):
 
     try:
 
-        logger.info("Prediction request received")
+        logger.info(
+            "Prediction request received"
+        )
 
+        # Convert Pydantic object to dictionary
         customer_dict = customer.model_dump()
 
-        customer_df = pd.DataFrame([customer_dict])
+        # Create DataFrame
+        customer_df = pd.DataFrame(
+            [customer_dict]
+        )
 
-        customer_df = clean_data(customer_df)
-        customer_df = create_features(customer_df)
+        # Clean data
+        customer_df = clean_data(
+            customer_df
+        )
 
-        prediction = model.predict(customer_df)[0]
+        # Create engineered features
+        customer_df = create_features(
+            customer_df
+        )
 
-        probability = model.predict_proba(customer_df)[0][1]
+        # Make prediction
+        prediction = model.predict(
+            customer_df
+        )[0]
 
-        probability_percent = float(probability) * 100
+        # Get probability
+        probability = model.predict_proba(
+            customer_df
+        )[0][1]
 
+        probability_percent = (
+            float(probability) * 100
+        )
+
+        # Prediction result
         if prediction == 1:
+
             result = "Likely to Churn"
+
         else:
+
             result = "Likely to Stay"
 
+        # Risk classification
         if probability_percent < 30:
+
             risk_level = "Low"
+
         elif probability_percent <= 70:
+
             risk_level = "Medium"
+
         else:
+
             risk_level = "High"
 
+        # Log prediction
         logger.info(
-            f"Prediction completed: {result}, "
+            f"Prediction completed: "
+            f"{result}, "
             f"probability={probability:.4f}, "
             f"risk={risk_level}"
         )
 
         return {
             "prediction": result,
+
             "churn_probability": round(
                 float(probability),
                 4
             ),
+
             "churn_probability_percent": round(
                 probability_percent,
                 2
             ),
+
             "risk_level": risk_level
         }
 
@@ -346,5 +526,12 @@ def predict_churn(customer: CustomerData):
             status_code=500,
             detail="Prediction failed due to an internal server error."
         )
-app.include_router(api_v1)
-app.include_router(api_v1)
+
+
+# --------------------------------------------------
+# Include Versioned API Router
+# --------------------------------------------------
+
+app.include_router(
+    api_v1
+)
