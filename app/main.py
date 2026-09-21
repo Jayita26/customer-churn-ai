@@ -5,7 +5,7 @@ import logging
 import joblib
 import pandas as pd
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
@@ -43,6 +43,10 @@ app = FastAPI(
     title="Customer Churn Prediction API",
     description="Machine Learning API for Customer Churn Prediction",
     version="1.1.0"
+)
+
+api_v1 = APIRouter(
+    prefix="/api/v1"
 )
 
 
@@ -128,6 +132,36 @@ class CustomerData(BaseModel):
     MonthlyCharges: float = Field(ge=0)
     TotalCharges: float = Field(ge=0)
 
+class PredictionResponse(BaseModel):
+
+    prediction: str
+    churn_probability: float
+    churn_probability_percent: float
+    risk_level: str
+
+class HealthResponse(BaseModel):
+
+    status: str
+    model_loaded: bool
+
+class ModelInfoResponse(BaseModel):
+
+    model: str
+    task: str
+    target: str
+    output: str
+
+class FeatureImportanceItem(BaseModel):
+
+    feature: str
+    coefficient: float
+    absolute_importance: float
+
+
+class FeatureImportanceResponse(BaseModel):
+
+    features: list[FeatureImportanceItem]
+
 # --------------------------------------------------
 # Home endpoint
 # --------------------------------------------------
@@ -145,8 +179,14 @@ def home():
 # --------------------------------------------------
 # Health check
 # --------------------------------------------------
-
-@app.get("/health")
+@api_v1.get(
+    "/health",
+    response_model=HealthResponse
+)
+@app.get(
+    "/health",
+    response_model=HealthResponse
+)
 def health_check():
 
     logger.info("Health check requested")
@@ -161,7 +201,14 @@ def health_check():
 # Model information
 # --------------------------------------------------
 
-@app.get("/model-info")
+@api_v1.get(
+    "/model-info",
+    response_model=ModelInfoResponse
+)
+@app.get(
+    "/model-info",
+    response_model=ModelInfoResponse
+)
 def model_info():
     
 
@@ -173,7 +220,14 @@ def model_info():
     }
 
 
-@app.get("/feature-importance")
+@api_v1.get(
+    "/feature-importance",
+    response_model=FeatureImportanceResponse
+)
+@app.get(
+    "/feature-importance",
+    response_model=FeatureImportanceResponse
+)
 def feature_importance():
 
     logger.info("Feature importance requested")
@@ -193,51 +247,73 @@ def feature_importance():
 # Prediction endpoint
 # --------------------------------------------------
 
-@app.post("/predict")
+@api_v1.post(
+    "/predict",
+    response_model=PredictionResponse
+)
+@app.post(
+    "/predict",
+    response_model=PredictionResponse
+)
 def predict_churn(customer: CustomerData):
 
-    logger.info("Prediction request received")
+    try:
 
-    customer_dict = customer.model_dump()
+        logger.info("Prediction request received")
 
-    customer_df = pd.DataFrame([customer_dict])
+        customer_dict = customer.model_dump()
 
-    customer_df = clean_data(customer_df)
-    customer_df = create_features(customer_df)
+        customer_df = pd.DataFrame([customer_dict])
 
-    prediction = model.predict(customer_df)[0]
+        customer_df = clean_data(customer_df)
+        customer_df = create_features(customer_df)
 
-    probability = model.predict_proba(customer_df)[0][1]
+        prediction = model.predict(customer_df)[0]
 
-    probability_percent = float(probability) * 100
+        probability = model.predict_proba(customer_df)[0][1]
 
-    if prediction == 1:
-        result = "Likely to Churn"
-    else:
-        result = "Likely to Stay"
+        probability_percent = float(probability) * 100
 
-    if probability_percent < 30:
-        risk_level = "Low"
-    elif probability_percent <= 70:
-        risk_level = "Medium"
-    else:
-        risk_level = "High"
+        if prediction == 1:
+            result = "Likely to Churn"
+        else:
+            result = "Likely to Stay"
 
-    logger.info(
-        f"Prediction completed: {result}, "
-        f"probability={probability:.4f}, "
-        f"risk={risk_level}"
-    )
+        if probability_percent < 30:
+            risk_level = "Low"
+        elif probability_percent <= 70:
+            risk_level = "Medium"
+        else:
+            risk_level = "High"
 
-    return {
-        "prediction": result,
-        "churn_probability": round(
-            float(probability),
-            4
-        ),
-        "churn_probability_percent": round(
-            probability_percent,
-            2
-        ),
-        "risk_level": risk_level
-    }
+        logger.info(
+            f"Prediction completed: {result}, "
+            f"probability={probability:.4f}, "
+            f"risk={risk_level}"
+        )
+
+        return {
+            "prediction": result,
+            "churn_probability": round(
+                float(probability),
+                4
+            ),
+            "churn_probability_percent": round(
+                probability_percent,
+                2
+            ),
+            "risk_level": risk_level
+        }
+
+    except Exception as e:
+
+        logger.exception(
+            "Prediction failed"
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Prediction failed due to an internal server error."
+        )
+app.include_router(api_v1)
+app.include_router(api_v1)

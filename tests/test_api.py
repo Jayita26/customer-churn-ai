@@ -290,3 +290,48 @@ def test_feature_importance():
             feature["absolute_importance"],
             float
         )
+
+def test_prediction_error_handling(monkeypatch):
+
+    def mock_predict(*args, **kwargs):
+        raise Exception("Test prediction failure")
+
+    monkeypatch.setattr(
+        "app.main.model.predict",
+        mock_predict
+    )
+
+    customer = {
+        "gender": "Female",
+        "SeniorCitizen": 0,
+        "Partner": "Yes",
+        "Dependents": "No",
+        "tenure": 5,
+        "PhoneService": "Yes",
+        "MultipleLines": "No",
+        "InternetService": "DSL",
+        "OnlineSecurity": "No",
+        "OnlineBackup": "Yes",
+        "DeviceProtection": "No",
+        "TechSupport": "No",
+        "StreamingTV": "No",
+        "StreamingMovies": "No",
+        "Contract": "Month-to-month",
+        "PaperlessBilling": "Yes",
+        "PaymentMethod": "Electronic check",
+        "MonthlyCharges": 70.35,
+        "TotalCharges": 351.75
+    }
+
+    response = client.post(
+        "/predict",
+        json=customer
+    )
+
+    assert response.status_code == 500
+
+    data = response.json()
+
+    assert data["detail"] == (
+        "Prediction failed due to an internal server error."
+    )
