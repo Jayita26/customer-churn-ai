@@ -2,26 +2,30 @@
 
 ## Project Overview
 
-This project builds an end-to-end machine learning system to predict whether a customer is likely to churn.
+This project is an end-to-end machine learning system that predicts whether a customer is likely to churn.
 
-The project covers the complete workflow:
+The project demonstrates a complete machine learning and deployment workflow:
 
-Dataset → EDA → Feature Engineering → Model Training → Evaluation → Prediction → FastAPI → Docker → Web Frontend
+**Dataset → EDA → Feature Engineering → Model Training → Evaluation → Prediction → FastAPI → Testing → Docker → Web Frontend → CI/CD**
+
+The system provides a REST API and a web-based interface for making customer churn predictions.
 
 ## Technologies Used
 
-- Python
-- Pandas
-- NumPy
-- Scikit-learn
-- FastAPI
-- Pydantic
-- Joblib
-- HTML
-- CSS
-- JavaScript
-- Docker
-- Git & GitHub
+* Python
+* Pandas
+* NumPy
+* Scikit-learn
+* FastAPI
+* Pydantic
+* Joblib
+* Pytest
+* HTML
+* CSS
+* JavaScript
+* Docker
+* Git & GitHub
+* GitHub Actions
 
 ## Machine Learning
 
@@ -30,176 +34,353 @@ Two classification models were trained:
 1. Logistic Regression
 2. Random Forest
 
-The Logistic Regression model is used by the prediction API.
+The **Logistic Regression model** is used by the production prediction API.
 
-## Features
+The API returns:
 
-The system performs:
+* Churn prediction
+* Churn probability
+* Churn probability percentage
+* Risk level
 
-- Data cleaning
-- Exploratory Data Analysis
-- Feature engineering
-- Categorical encoding using OneHotEncoder
-- Train-test splitting
-- Machine learning model training
-- Model evaluation
-- Churn probability prediction
-- REST API development
-- Docker containerization
-- Web-based prediction interface
+## Data Processing
+
+The preprocessing pipeline performs:
+
+* Missing-value handling
+* Data type conversion
+* Feature engineering
+* Categorical encoding using `OneHotEncoder`
+* Train-test splitting
+* Consistent preprocessing during prediction
 
 ## Feature Engineering
 
-Additional features were created:
+The following additional features were created:
 
-- Average monthly spend
-- Total number of services
-- New customer indicator
-- Internet service indicator
-- Customer support indicator
+* Average monthly spend
+* Total number of services
+* New customer indicator
+* Internet service indicator
+* Customer support indicator
 
-## API Endpoints
+## API
 
-### Home
+The application is built using **FastAPI**.
 
-`GET /`
+### API Version 1
 
-Returns information about the application.
+The current versioned API is available under:
+
+```text
+/api/v1
+```
 
 ### Health Check
 
-`GET /health`
+```text
+GET /api/v1/health
+```
 
-Checks whether the API and model are running.
+Checks whether the API and machine learning model are running.
+
+Example response:
+
+```json
+{
+  "status": "healthy",
+  "model_loaded": true
+}
+```
 
 ### Model Information
 
-`GET /model-info`
+```text
+GET /api/v1/model-info
+```
 
-Returns information about the machine learning model.
+Returns information about the machine learning model and prediction task.
+
+### Feature Importance
+
+```text
+GET /api/v1/feature-importance
+```
+
+Returns the top model features and their coefficients.
 
 ### Prediction
 
-`POST /predict`
+```text
+POST /api/v1/predict
+```
 
-Accepts customer information and returns:
+Accepts customer information and returns a churn prediction.
 
-- Prediction
-- Churn probability
-- Churn probability percentage
+Example response:
+
+```json
+{
+  "prediction": "Likely to Churn",
+  "churn_probability": 0.5547,
+  "churn_probability_percent": 55.47,
+  "risk_level": "Medium"
+}
+```
+
+### API Documentation
+
+FastAPI automatically provides interactive API documentation at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+## Risk Classification
+
+The API converts the predicted churn probability into a project-defined risk level:
+
+| Churn Probability | Risk Level |
+| ----------------- | ---------- |
+| Below 30%         | Low        |
+| 30%–70%           | Medium     |
+| Above 70%         | High       |
+
+These thresholds are application-level rules used for this project.
+
+## Input Validation
+
+The API uses **Pydantic** to validate incoming customer data.
+
+Examples of validation rules include:
+
+* `SeniorCitizen` must be 0 or 1
+* `tenure` cannot be negative
+* `MonthlyCharges` cannot be negative
+* `TotalCharges` cannot be negative
+
+Invalid requests are rejected with an appropriate HTTP validation response.
+
+## Error Handling
+
+The prediction endpoint includes server-side error handling.
+
+If an unexpected error occurs during prediction, the API returns an HTTP 500 response with a generic error message instead of exposing internal implementation details.
+
+## Automated Testing
+
+The project uses **Pytest** for automated testing.
+
+The test suite covers:
+
+* API home endpoint
+* Health endpoint
+* Model information endpoint
+* Prediction endpoint
+* Input validation
+* Risk-level validation
+* Feature importance
+* Prediction error handling
+* Data loading
+* Data cleaning
+* Feature engineering
+
+Current test result:
+
+```text
+14 passed
+```
+
+## Continuous Integration
+
+GitHub Actions is used to automatically run the test suite whenever changes are pushed to the `main` branch or submitted through a pull request.
+
+The CI workflow:
+
+1. Checks out the repository
+2. Sets up Python 3.11
+3. Installs project dependencies
+4. Runs `pytest`
 
 ## Web Frontend
 
-A simple web interface was created using:
+A simple web interface was developed using:
 
-- HTML
-- CSS
-- JavaScript
+* HTML
+* CSS
+* JavaScript
 
-Users can enter customer information through a form and receive the churn prediction without manually entering JSON.
+Users can enter customer information through a form and receive a churn prediction without manually creating a JSON request.
 
 ## Docker
 
 The FastAPI application is containerized using Docker.
 
-The application can be run using:
+### Build the Docker Image
 
-`docker run -d -p 8000:8000 --name customer-churn-container customer-churn-api`
+```bash
+docker build -t customer-churn-api .
+```
 
-The API is then available at:
+### Run the Container
 
-`http://127.0.0.1:8000`
+```bash
+docker run -d -p 8000:8000 --name customer-churn-container customer-churn-api
+```
+
+The application is then available at:
+
+```text
+http://127.0.0.1:8000
+```
+
+API documentation:
+
+```text
+http://127.0.0.1:8000/docs
+```
 
 ## Project Structure
 
+```text
 customer-churn-ai/
-
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+│
 ├── app/
-
 │   ├── main.py
-
 │   └── static/
-
 │       ├── index.html
-
 │       ├── style.css
-
 │       └── script.js
-
+│
 ├── data/
-
 │   └── customer_churn.csv
-
+│
 ├── models/
-
 │   ├── evaluation_results.csv
-
 │   └── logistic_churn_model.pkl
-
+│
 ├── notebooks/
-
 │   ├── 01_eda.ipynb
-
 │   └── 02_model_evaluation.ipynb
-
+│
 ├── src/
-
 │   ├── preprocessing.py
-
 │   ├── train.py
-
 │   └── predict.py
-
+│
+├── tests/
+│   ├── test_api.py
+│   └── test_preprocessing.py
+│
 ├── .dockerignore
-
 ├── .gitignore
-
 ├── Dockerfile
-
 ├── README.md
-
 └── requirements.txt
+```
 
 The Random Forest model is generated locally but excluded from GitHub because of its large file size.
 
-## How to Run
+## How to Run Locally
 
 ### 1. Clone the repository
 
-`git clone https://github.com/Jayita26/customer-churn-ai.git`
+```bash
+git clone https://github.com/Jayita26/customer-churn-ai.git
+```
 
 ### 2. Open the project
 
-`cd customer-churn-ai`
+```bash
+cd customer-churn-ai
+```
 
 ### 3. Install dependencies
 
-`pip install -r requirements.txt`
+```bash
+pip install -r requirements.txt
+```
 
 ### 4. Run the API
 
-`uvicorn app.main:app --reload`
+```bash
+uvicorn app.main:app --reload
+```
 
 ### 5. Open the application
 
-`http://127.0.0.1:8000`
+```text
+http://127.0.0.1:8000
+```
 
 ### 6. Open API documentation
 
-`http://127.0.0.1:8000/docs`
+```text
+http://127.0.0.1:8000/docs
+```
+
+### 7. Run automated tests
+
+```bash
+pytest -v
+```
+
+## Docker Deployment
+
+Alternatively, run the complete application using Docker:
+
+```bash
+docker build -t customer-churn-api .
+```
+
+```bash
+docker run -d -p 8000:8000 --name customer-churn-container customer-churn-api
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Project Highlights
+
+This project demonstrates practical experience with:
+
+* Machine learning model development
+* Data preprocessing
+* Feature engineering
+* REST API development
+* API input validation
+* API versioning
+* Model explainability
+* Error handling
+* Automated testing
+* Continuous integration
+* Docker containerization
+* Web application integration
+* Git and GitHub workflow
 
 ## Future Improvements
 
-- Add authentication
-- Add database integration
-- Add cloud deployment
-- Add monitoring and logging
-- Add automated testing
-- Improve model performance
-- Add CI/CD pipeline
+Possible future improvements include:
+
+* Authentication and authorization
+* Database integration
+* Cloud deployment
+* Advanced model monitoring
+* Model versioning
+* Improved model performance
+* Production monitoring
+* More comprehensive CI/CD
+* LLM or RAG-based customer support integration
 
 ## Author
 
-Jayita Maiti
+**Jayita Maiti**
 
 M.Sc. Data Science
